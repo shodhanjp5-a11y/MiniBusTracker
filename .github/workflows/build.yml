@@ -1,0 +1,33 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "MiniBusTracker_ESP32_Project.zip"
+      - ".github/workflows/build.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract project
+        run: |
+          unzip -o MiniBusTracker_ESP32_Project.zip -d project
+          cd project
+          ls -la
+
+      - name: Build APK
+        run: |
+          cd project
+          gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiniBusTracker-APK
+          path: project/app/build/outputs/apk/debug/app-debug.apk
