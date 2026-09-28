@@ -2,10 +2,6 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "MiniBusTracker_ESP32_Project.zip"
-      - ".github/workflows/build.yml"
 
 jobs:
   build:
@@ -15,16 +11,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract project
+      - name: Find and extract project ZIP
         run: |
-          unzip -o MiniBusTracker_ESP32_Project.zip -d project
-          cd project
-          ls -la
+          ZIP_FILE=$(find . -maxdepth 1 -type f -name "*.zip" | head -n 1)
+          echo "Found: $ZIP_FILE"
+          unzip -o "$ZIP_FILE" -d project
 
       - name: Build APK
         run: |
           cd project
-          gradle assembleDebug --no-daemon
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
